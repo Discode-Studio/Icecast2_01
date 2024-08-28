@@ -20,6 +20,5 @@
 </listen-socket>
 
 <mount>
-  <mount-name>/stream</mount-name>
-  <file>/path/to/your/audiofile.ogg</file>
+  <mount-name>/145736kHz.ogg</mount-name>
 </mount>
