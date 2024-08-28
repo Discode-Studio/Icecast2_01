@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  # Serveur RTMP avec NGINX
+  nginx-rtmp:
+    image: tiangolo/nginx-rtmp
+    container_name: nginx_rtmp
+    ports:
+      - "1935:1935"     # Port RTMP pour la diffusion en direct
+      - "8080:8080"     # Port HTTP pour accéder au dashboard RTMP
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Fichier de configuration RTMP
+
+  # Serveur Icecast pour la diffusion
   icecast:
     image: mdns/icecast
     container_name: icecast
@@ -13,25 +24,25 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./icecast/icecast.xml:/etc/icecast2/icecast.xml
+      - ./icecast/icecast.xml:/etc/icecast2/icecast.xml  # Fichier de configuration Icecast
 
-  darkice:
-    image: angelnu/darkice
-    container_name: darkice
+  # FFmpeg pour capturer le flux WebSDR et l'envoyer au serveur RTMP
+  ffmpeg-websdr:
+    image: jrottenberg/ffmpeg
+    container_name: ffmpeg_websdr
+    restart: always
+    command: >
+      ffmpeg -i http://example.com/websdr/live
+      -c:a aac -b:a 128k -f flv rtmp://nginx_rtmp/live/stream
+
+  # FFmpeg pour capturer le flux RTMP et l'envoyer vers Icecast
+  ffmpeg-to-icecast:
+    image: jrottenberg/ffmpeg
+    container_name: ffmpeg_to_icecast
+    restart: always
     depends_on:
+      - nginx-rtmp
       - icecast
-    restart: always
-    volumes:
-      - ./darkice/darkice.cfg:/etc/darkice.cfg
-    command: /usr/bin/darkice -c /etc/darkice.cfg
-
-  cron:
-    image: bitnami/minideb
-    container_name: cron_restart
-    restart: always
-    entrypoint: /bin/bash
-    command:
-      - "-c"
-      - |
-        echo "0 */6 * * * /usr/bin/docker-compose restart" > /etc/crontab
-        cron -f
+    command: >
+      ffmpeg -i rtmp://nginx_rtmp/live/stream
+      -c:a libmp3lame -b:a 128k -f mp3 icecast://source:hackme@icecast:8000/stream
