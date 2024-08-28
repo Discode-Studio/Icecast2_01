@@ -1,0 +1,25 @@
+name: Restart Docker Service Every 6 Hours
+
+on:
+  schedule:
+    # Le workflow s'exécutera toutes les 6 heures
+    - cron: "0 */6 * * *"
+
+jobs:
+  restart-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1 : Vérifier le dépôt (nécessaire pour utiliser les fichiers du dépôt dans l'action)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Étape 2 : Installer Docker dans l'environnement GitHub Actions
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
+      # Étape 3 : Construire et relancer le conteneur Docker
+      - name: Build and run Docker Compose
+        run: |
+          docker-compose down
+          docker-compose up -d
