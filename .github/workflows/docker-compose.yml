@@ -32,7 +32,7 @@ services:
     container_name: ffmpeg_websdr
     restart: always
     command: >
-      ffmpeg -i http://example.com/websdr/live
+      ffmpeg -i http://websdr.78dx.ru:8901/?tune=145736usb
       -c:a aac -b:a 128k -f flv rtmp://nginx_rtmp/live/stream
 
   # FFmpeg pour capturer le flux RTMP et l'envoyer vers Icecast
