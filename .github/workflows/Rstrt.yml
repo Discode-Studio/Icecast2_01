@@ -2,9 +2,8 @@ name: Restart Docker Service Every 6 Hours
 
 on:
   schedule:
-    # Le workflow s'exécutera toutes les 6 heures
-    - cron: "0 */6 * * *"
-      workflow_dispatch:
+    - cron: "3 */6 * * *"  # Toutes les 6 heures
+  workflow_dispatch:       
 
 jobs:
   restart-docker:
