@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Serveur RTMP avec NGINX
   nginx-rtmp:
