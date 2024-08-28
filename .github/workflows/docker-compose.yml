@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  icecast:
+    image: mdns/icecast
+    container_name: icecast
+    restart: always
+    environment:
+      - ICECAST_SOURCE_PASSWORD=hackme
+      - ICECAST_RELAY_PASSWORD=hackme
+      - ICECAST_ADMIN_PASSWORD=adminpassword
+      - ICECAST_PASSWORD=hackme
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./icecast/icecast.xml:/etc/icecast2/icecast.xml
+
+  darkice:
+    image: angelnu/darkice
+    container_name: darkice
+    depends_on:
+      - icecast
+    restart: always
+    volumes:
+      - ./darkice/darkice.cfg:/etc/darkice.cfg
+    command: /usr/bin/darkice -c /etc/darkice.cfg
+
+  cron:
+    image: bitnami/minideb
+    container_name: cron_restart
+    restart: always
+    entrypoint: /bin/bash
+    command:
+      - "-c"
+      - |
+        echo "0 */6 * * * /usr/bin/docker-compose restart" > /etc/crontab
+        cron -f
