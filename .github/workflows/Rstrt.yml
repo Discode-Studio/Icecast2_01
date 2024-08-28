@@ -4,6 +4,7 @@ on:
   schedule:
     # Le workflow s'exécutera toutes les 6 heures
     - cron: "0 */6 * * *"
+      workflow_dispatch:
 
 jobs:
   restart-docker:
